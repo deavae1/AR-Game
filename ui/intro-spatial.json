@@ -1,0 +1,11 @@
+{
+  "config": {
+    "type": "spatial-intro",
+    "title": "¡Bienvenido!",
+    "description": "Get ready to learn Spanish in augmented reality.\nYou’ll see objects appear around you. Tap the correct word to continue.\nLook around, stay aware of your space, and have fun!",
+    "button": {
+      "text": "Continue",
+      "id": "spatial-intro-continue"
+    }
+  }
+}

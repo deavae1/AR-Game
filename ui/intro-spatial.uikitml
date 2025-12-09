@@ -1,0 +1,11 @@
+<uikitml>
+  <container style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; background: #f0f4f8; border-radius: 12px; border: 2px solid #222; box-shadow: 0 2px 12px rgba(0,0,0,0.2); padding: 14px 14px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+    <container style="width: 100%; border: 2px solid #222; border-radius: 10px; padding: 8px 10px; background: #ffffff; display: flex; flex-direction: column; align-items: center; box-shadow: inset 0 0 0 1px #ffffff;">
+      <h1 style="font-size: 1.6em; margin: 0 0 2px 0; color: #333;">¡Bienvenido!</h1>
+      <p style="font-size: 1.3em; margin: 2px 0 4px 0; line-height: 1.3; text-align: center; color: #444;">Get ready to learn Spanish in augmented reality.</p>
+      <p style="font-size: 1.3em; margin: 2px 0 4px 0; line-height: 1.3; text-align: center; color: #444;">You'll see objects appear around you—tap the correct word to continue.</p>
+      <p style="font-size: 1.3em; margin: 2px 0 6px 0; line-height: 1.3; text-align: center; color: #444;">Look around, stay aware of your space, and have fun!</p>
+    </container>
+    <button id="spatial-intro-continue" style="font-size: 1.1em; padding: 10px 28px; border-radius: 6px; background: #0078D4; color: white; border: none; cursor: pointer;">Continue</button>
+  </container>
+</uikitml>
