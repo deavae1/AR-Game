@@ -76,19 +76,19 @@ World.create(document.getElementById('scene-container'), {
 
   const plant = AssetManager.getGLTF('plant').scene;
   plant.scale.set(0.1, 0.1, 0.1);
-  plant.position.set(-0.5, 1.3, 0);
+  plant.position.set(-0.55, 1.5, -1.1);
   const plantEntity = world.createTransformEntity(plant);
   plantEntity.object3D.visible = false; // Reveal alongside task panel
 
   const television = AssetManager.getGLTF('television').scene;
   television.scale.set(0.02, 0.02, 0.02);
-  television.position.set(-0.3, 1, 0);
+  television.position.set(-0.3, 1.29, -0.68);
   const televisionEntity = world.createTransformEntity(television);
   televisionEntity.object3D.visible = false; // Reveal alongside task panel
 
   const couch = AssetManager.getGLTF('couch').scene;
   couch.scale.set(0.001, 0.001, 0.001);
-  couch.position.set(0.3, 1.3, 0);
+  couch.position.set(0.3, 1.5, -1.1);
   const couchEntity = world.createTransformEntity(couch);
   couchEntity.object3D.visible = false; // Reveal alongside task panel
 
