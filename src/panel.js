@@ -63,10 +63,31 @@ export class PanelSystem extends createSystem({
               .addComponent(Interactable);
 
             // Reveal task furniture when the panel appears
-            const { plantEntity, televisionEntity, couchEntity } = this.world;
+            const { plantEntity, televisionEntity, couchEntity, plantLabel, tvLabel, couchLabel } = this.world;
+            
+            console.log('Attempting to reveal furniture and labels:', {
+              plantEntity, televisionEntity, couchEntity, plantLabel, tvLabel, couchLabel
+            });
+            
             [plantEntity, televisionEntity, couchEntity].forEach((entity) => {
               if (entity && entity.object3D) {
                 entity.object3D.visible = true;
+                console.log('Furniture visible:', entity);
+              }
+            });
+            
+            // Also reveal the Spanish word labels
+            [plantLabel, tvLabel, couchLabel].forEach((label, index) => {
+              if (label && label.object3D) {
+                console.log(`Setting label ${index} visible. Current state:`, {
+                  visible: label.object3D.visible,
+                  position: label.object3D.position,
+                  scale: label.object3D.scale
+                });
+                label.object3D.visible = true;
+                console.log(`Spanish label ${index} made visible. New state:`, label.object3D.visible);
+              } else {
+                console.warn(`Spanish label ${index} not found or missing object3D`, label);
               }
             });
           } else {

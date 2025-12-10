@@ -19,6 +19,7 @@ import {
   PhysicsBody, PhysicsShape, PhysicsShapeType, PhysicsState, PhysicsSystem,
   createSystem
 } from '@iwsdk/core';
+import { CanvasTexture } from 'three';
 
 
 import { PanelSystem } from './panel.js';
@@ -82,7 +83,7 @@ World.create(document.getElementById('scene-container'), {
 
   const television = AssetManager.getGLTF('television').scene;
   television.scale.set(0.02, 0.02, 0.02);
-  television.position.set(-0.3, 1.29, -0.68);
+  television.position.set(-0.26, 1.29, -0.68);
   const televisionEntity = world.createTransformEntity(television);
   televisionEntity.object3D.visible = false; // Reveal alongside task panel
 
@@ -97,35 +98,68 @@ World.create(document.getElementById('scene-container'), {
   world.televisionEntity = televisionEntity;
   world.couchEntity = couchEntity;
 
-
-
-
-
-
-
   world.registerSystem(PhysicsSystem).registerComponent(PhysicsBody).registerComponent(PhysicsShape);
-  
-  
-
-
-
-
 
   // vvvvvvvv EVERYTHING BELOW WAS ADDED TO DISPLAY A BUTTON TO ENTER VR FOR QUEST 1 DEVICES vvvvvv
   //          (for some reason IWSDK doesn't show Enter VR button on Quest 1)
   world.registerSystem(PanelSystem);
 
-    // Add spatial intro panel (centered)
-    const spatialIntroEntity = world
-      .createTransformEntity()
-      .addComponent(PanelUI, {
-        config: '/ui/intro-spatial.json',
-        maxHeight: 0.7,
-        maxWidth: 1.2
-      })
-      .addComponent(Interactable)
-      // No ScreenSpace, use 3D position only
-    spatialIntroEntity.object3D.position.set(-1.5, 2, -0.5); // Centered at eye level, in front
+  // Add spatial intro panel (centered)
+  const spatialIntroEntity = world
+    .createTransformEntity()
+    .addComponent(PanelUI, {
+      config: '/ui/intro-spatial.json',
+      maxHeight: 0.7,
+      maxWidth: 1.2
+    })
+    .addComponent(Interactable)
+    // No ScreenSpace, use 3D position only
+  spatialIntroEntity.object3D.position.set(-1.5, 2, -0.5); // Centered at eye level, in front
+
+  // Simple canvas-text billboards for Spanish labels (no PanelUI)
+  function createTextBillboard(world, text, x, y, z) {
+    // Draw text on a canvas to use as a texture
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const pad = 16;
+    const fontSize = 48;
+    ctx.font = `${fontSize}px sans-serif`;
+    const metrics = ctx.measureText(text);
+    const width = Math.ceil(metrics.width + pad * 2);
+    const height = Math.ceil(fontSize * 1.8);
+    canvas.width = width;
+    canvas.height = height;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+    ctx.fillRect(0, 0, width, height);
+    ctx.font = `${fontSize}px sans-serif`;
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, width / 2, height / 2);
+
+    const texture = new CanvasTexture(canvas);
+    texture.colorSpace = SRGBColorSpace;
+    texture.needsUpdate = true;
+
+    const aspect = width / height;
+    const billboardHeight = 0.18;
+    const billboardWidth = billboardHeight * aspect;
+
+    const geo = new PlaneGeometry(billboardWidth, billboardHeight);
+    const mat = new MeshBasicMaterial({ map: texture, transparent: true });
+    const mesh = new Mesh(geo, mat);
+    mesh.position.set(x, y, z);
+    mesh.renderOrder = 10; // draw on top
+
+    const entity = world.createTransformEntity(mesh);
+    entity.object3D.visible = false;
+    return entity;
+  }
+
+  // Add Spanish labels above each object (hidden initially)
+  world.plantLabel = createTextBillboard(world, "Planta", -0.7, 1.25, -1.23);
+  world.tvLabel = createTextBillboard(world, "Televisión", -0.23, 1.25, -1.23);
+  world.couchLabel = createTextBillboard(world, "Sofá", 0.3, 1.25, -1.23);
   
   if (isMetaQuest1()) {
     const panelEntity = world
