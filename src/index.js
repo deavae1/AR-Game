@@ -17,7 +17,9 @@ import {
   MovementMode,
   DistanceGrabbable,
   PhysicsBody, PhysicsShape, PhysicsShapeType, PhysicsState, PhysicsSystem,
-  createSystem
+  createSystem,
+  AudioSource,
+  AudioUtils,
 } from '@iwsdk/core';
 import { CanvasTexture } from 'three';
 
@@ -40,7 +42,17 @@ const assets = {
       url: '/gltf/couch/scene.gltf',
       type: AssetType.GLTF,
       priority: 'critical',
-    }
+    },
+    schoolboard: {
+      url: '/gltf/school_board/scene.gltf',
+      type: AssetType.GLTF,
+      priority: 'critical',
+    },
+    win: {
+      url: '/audio/orchestral-win-331233.mp3',
+      type: AssetType.Audio,
+      priority: 'background',
+    },
 };
 
 World.create(document.getElementById('scene-container'), {
@@ -54,6 +66,7 @@ World.create(document.getElementById('scene-container'), {
   features: { locomotion: { useWorker: true }, grabbing: true, physics: true},
 }).then((world) => {
   const { camera } = world;
+  
   
    // create a floor
   const floorMesh = new Mesh(new PlaneGeometry(20, 20), new MeshStandardMaterial({color:"tan"}));
@@ -87,6 +100,24 @@ World.create(document.getElementById('scene-container'), {
   // Store reference on world for PanelSystem to access
   world.task2Panel = task2Panel;
 
+  // panel for completion message (hidden initially)
+  const task3Panel = world
+  .createTransformEntity();
+  
+  // Position panel in front and to the left of the user
+  task3Panel.object3D.position.set(-0.2, 1.8, -1);
+  task3Panel.object3D.scale.set(1, 1, 1);
+  task3Panel.object3D.visible = false; // Hide initially
+
+  // Store reference on world for PanelSystem to access
+  world.task3Panel = task3Panel;
+
+  const schoolboard = AssetManager.getGLTF('schoolboard').scene;
+  schoolboard.scale.set(0.7, 0.7, 0.7);
+  schoolboard.position.set(-0.3, 1.25, -1.5);
+  const schoolboardEntity = world.createTransformEntity(schoolboard);
+  
+
   const plant = AssetManager.getGLTF('plant').scene;
   plant.scale.set(0.1, 0.1, 0.1);
   plant.position.set(-0.55, 1.5, -1.1);
@@ -114,7 +145,7 @@ World.create(document.getElementById('scene-container'), {
 
   // vvvvvvvv EVERYTHING BELOW WAS ADDED TO DISPLAY A BUTTON TO ENTER VR FOR QUEST 1 DEVICES vvvvvv
   //          (for some reason IWSDK doesn't show Enter VR button on Quest 1)
-  world.registerSystem(PanelSystem);
+  world.registerSystem(PanelSystem, { update: true });
 
   // Add spatial intro panel (centered)
   const spatialIntroEntity = world
@@ -126,7 +157,7 @@ World.create(document.getElementById('scene-container'), {
     })
     .addComponent(Interactable)
     // No ScreenSpace, use 3D position only
-  spatialIntroEntity.object3D.position.set(-1.5, 2, -0.5); // Centered at eye level, in front
+  spatialIntroEntity.object3D.position.set(-1.5, 2.1, -0.75); // Centered at eye level, in front
 
   // Simple canvas-text billboards for Spanish labels (no PanelUI)
   function createTextBillboard(world, text, x, y, z) {

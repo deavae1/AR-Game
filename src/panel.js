@@ -1,12 +1,13 @@
-
-
 import {
   createSystem,
   PanelUI,
   PanelDocument,
   eq,
   VisibilityState,
-  Interactable
+  Interactable,
+  AudioSource,
+  AssetManager,
+  AudioUtils,
 } from '@iwsdk/core';
 
 export class PanelSystem extends createSystem({
@@ -28,6 +29,15 @@ export class PanelSystem extends createSystem({
   }
 }) {
   init() {
+    // Track which labels have been matched
+    this.matchedLabels = {
+      plant: false,
+      tv: false,
+      couch: false
+    };
+
+    this.completionShown = false;
+
     this.queries.welcomePanel.subscribe('qualify', (entity) => {
       const document = PanelDocument.data.document[entity.index];
       if (!document) return;
@@ -185,5 +195,88 @@ export class PanelSystem extends createSystem({
         });
       }
     });
+  }
+
+  update() {
+    // Check proximity between labels and objects during task2
+    const { plantLabel, tvLabel, couchLabel, plantEntity, televisionEntity, couchEntity } = this.world;
+    
+    // Check plant label proximity to plant
+    if (plantLabel && plantEntity && plantLabel.object3D.visible && !this.matchedLabels.plant) {
+      const dist = plantLabel.object3D.position.distanceTo(plantEntity.object3D.position);
+      if (dist < 0.2) {
+        console.log('Plant label matched!');
+        plantLabel.object3D.visible = false;
+        this.matchedLabels.plant = true;
+      }
+    }
+    // Check TV label proximity to TV
+    if (tvLabel && televisionEntity && tvLabel.object3D.visible && !this.matchedLabels.tv) {
+      const dist = tvLabel.object3D.position.distanceTo(televisionEntity.object3D.position);
+      if (dist < 0.2) {
+        console.log('TV label matched!');
+        tvLabel.object3D.visible = false;
+        this.matchedLabels.tv = true;
+      }
+    }
+    
+    // Check couch label proximity to couch
+    if (couchLabel && couchEntity && couchLabel.object3D.visible && !this.matchedLabels.couch) {
+      const dist = couchLabel.object3D.position.distanceTo(couchEntity.object3D.position);
+      if (dist < 0.2) {
+        console.log('Couch label matched!');
+        couchLabel.object3D.visible = false;
+        this.matchedLabels.couch = true;
+      }
+    }
+
+    // When all labels are matched, reveal the completion panel once
+    if (
+      !this.completionShown &&
+      this.matchedLabels.plant &&
+      this.matchedLabels.tv &&
+      this.matchedLabels.couch
+    ) {
+      this.completionShown = true;
+
+      // Hide task2 and show the completion message
+      const { task2Panel, task3Panel, plantEntity, televisionEntity, couchEntity } = this.world;
+      if (task2Panel) {
+        task2Panel.removeComponent(PanelUI);
+        task2Panel.object3D.visible = false;
+      }
+
+      // Hide all 3D objects when task3 is shown
+      if (plantEntity && plantEntity.object3D) {
+        plantEntity.object3D.visible = false;
+      }
+      if (televisionEntity && televisionEntity.object3D) {
+        televisionEntity.object3D.visible = false;
+      }
+      if (couchEntity && couchEntity.object3D) {
+        couchEntity.object3D.visible = false;
+      }
+
+      if (task3Panel) {
+        task3Panel.object3D.visible = true;
+        task3Panel
+          .addComponent(PanelUI, { config: '/ui/task3.json', maxHeight: 0.8, maxWidth: 0.8 })
+          .addComponent(Interactable);
+        
+        // Play victory sound when completion panel is shown
+        try {
+          const audioBuffer = AssetManager.getAudio('win');
+          if (audioBuffer) {
+            const audioSource = new AudioSource(audioBuffer);
+            AudioUtils.playAudio(audioSource);
+            console.log('Victory sound played!');
+          }
+        } catch (error) {
+          console.error('Error playing victory sound:', error);
+        }
+      } else {
+        console.error('task3Panel not found on world');
+      }
+    }
   }
 }
