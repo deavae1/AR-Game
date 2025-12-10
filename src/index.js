@@ -69,7 +69,11 @@ World.create(document.getElementById('scene-container'), {
   
   
    // create a floor
-  const floorMesh = new Mesh(new PlaneGeometry(20, 20), new MeshStandardMaterial({color:"tan"}));
+  const floorMesh = new Mesh(new PlaneGeometry(5, 5), new MeshStandardMaterial({
+    color: "tan",
+    transparent: true,
+    opacity: 0
+  }));
   floorMesh.rotation.x = -Math.PI / 2;
   const floorEntity = world.createTransformEntity(floorMesh);
   floorEntity.addComponent(LocomotionEnvironment, { type: EnvironmentType.STATIC });
