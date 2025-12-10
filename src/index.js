@@ -75,6 +75,18 @@ World.create(document.getElementById('scene-container'), {
   // Store reference on world for PanelSystem to access
   world.task1Panel = task1Panel;
 
+  //panel for task 2 (hidden initially)
+  const task2Panel = world
+  .createTransformEntity();
+  
+  // Position panel in front and to the left of the user
+  task2Panel.object3D.position.set(-0.2, 1.8, -1);
+  task2Panel.object3D.scale.set(1, 1, 1);
+  task2Panel.object3D.visible = false; // Hide initially
+
+  // Store reference on world for PanelSystem to access
+  world.task2Panel = task2Panel;
+
   const plant = AssetManager.getGLTF('plant').scene;
   plant.scale.set(0.1, 0.1, 0.1);
   plant.position.set(-0.55, 1.5, -1.1);
@@ -153,10 +165,16 @@ World.create(document.getElementById('scene-container'), {
 
     const entity = world.createTransformEntity(mesh);
     entity.object3D.visible = false;
+    
+    // Add interactable and grabbable components
+    entity.addComponent(Interactable);
+    entity.addComponent(DistanceGrabbable);
+    
     return entity;
   }
 
   // Add Spanish labels above each object (hidden initially)
+  // Start positions (hidden, not on side yet)
   world.plantLabel = createTextBillboard(world, "Planta", -0.7, 1.25, -1.23);
   world.tvLabel = createTextBillboard(world, "Televisión", -0.23, 1.25, -1.23);
   world.couchLabel = createTextBillboard(world, "Sofá", 0.3, 1.25, -1.23);
